@@ -1,0 +1,13 @@
+{
+    "server_port": "9767" ,
+    "server_mjpeg_endpoint_url": "/frame.jpeg" ,
+    "device_id": 0 ,
+    "frame_interval_milliseconds": 50 ,
+    "delta_threshold": 5 ,
+    "show_display": false ,
+    "minimum_area": 1000 ,
+    "minimum_motion_counter_before_event": 25 ,
+    "minimum_events_before_alert": 16 ,
+    "alert_cooloff_duration_seconds": 3 ,
+    "alert_server_post_url": "https://example.com/post/consume-opencv-frame/"
+}
