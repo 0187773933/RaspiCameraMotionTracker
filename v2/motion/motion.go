@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"bytes"
+	"strings"
 	"image"
 	"io/ioutil"
 	"encoding/json"
@@ -55,6 +56,7 @@ func ( tracker *Tracker ) Alert( frame_buffer []uint8 ) {
 		frame_buffer_b64_string := base64.StdEncoding.EncodeToString( frame_buffer )
 		post_data , _ := json.Marshal(map[string]string{
 			"frame_buffer_b64_string": frame_buffer_b64_string ,
+			"time_stamp": GetFormattedTimeString( tracker.LastAlertTime ) ,
 		})
 		client := &http.Client{}
 		request , request_error := http.NewRequest( "POST" , tracker.Config.AlertServerPostURL , bytes.NewBuffer( post_data ) )
@@ -70,6 +72,16 @@ func ( tracker *Tracker ) Alert( frame_buffer []uint8 ) {
 	})
 }
 
+func GetFormattedTimeString( time_object time.Time ) ( result string ) {
+	// https://stackoverflow.com/a/51915792
+	// month_name := strings.ToUpper( time_object.Format( "Feb" ) ) // monkaHmm
+	month_name := strings.ToUpper( time_object.Format( "Jan" ) )
+	milliseconds := time_object.Format( ".000" )
+	date_part := fmt.Sprintf( "%02d%s%d" , time_object.Day() , month_name , time_object.Year() )
+	time_part := fmt.Sprintf( "%02d:%02d:%02d%s" , time_object.Hour() , time_object.Minute() , time_object.Second() , milliseconds )
+	result = fmt.Sprintf( "%s === %s" , date_part , time_part )
+	return
+}
 
 func ( tracker *Tracker ) Start() {
 
@@ -186,35 +198,3 @@ func ( tracker *Tracker ) Start() {
 	}
 
 }
-
-
-
-// Config
-// const DeviceID = 0
-// const DeltaThreshold = 5
-// const ShowDisplay = false
-// //const MinimumArea = 500
-// const MinimumArea = 1000
-// //const MinimumMotionCounterBeforeEvent = 25
-// const MinimumMotionCounterBeforeEvent = 16
-// //const MinimumEventsBeforeAlert = 3
-// const MinimumEventsBeforeAlert = 1
-// const AlertCooloffDurationSeconds = 180
-// const AlertServerHost = "localhost"
-// const AlertServerPort = "9367"
-// const AlertServerEndPointURL = "alert"
-
-// // Runtime Vars
-// var LastAlertTime time.Time
-
-// func TwilioSendSMS( from_number string , to_number string , message string ) {
-// 	twilio := gotwilio.NewTwilioClient( "accountSid" , "authToken" )
-// 	twilio.SendSMS( from_number , to_number , message , "" , "" )
-// }
-
-// func TwilioCallNumber( from_number string , to_number string , call_handler_url string ) {
-// 	twilio := gotwilio.NewTwilioClient( "accountSid" , "authToken" )
-// 	twilio.SendSMS( from_number , to_number , message , "" , "" )
-// 	callback_params := gotwilio.NewCallbackParameters( call_handler_url )
-// 	twilio.CallWithUrlCallbacks( from_number , to_number , callback_params )
-// }
