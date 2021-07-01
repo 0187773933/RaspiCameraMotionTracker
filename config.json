@@ -2,12 +2,12 @@
     "server_port": "9767" ,
     "server_mjpeg_endpoint_url": "/frame.jpeg" ,
     "device_id": 0 ,
-    "frame_interval_milliseconds": 50 ,
+    "frame_interval_milliseconds": 29 ,
     "delta_threshold": 5 ,
     "show_display": false ,
     "minimum_area": 1000 ,
-    "minimum_motion_counter_before_event": 10 ,
+    "minimum_motion_counter_before_event": 3 ,
     "minimum_events_before_alert": 3 ,
-    "alert_cooloff_duration_seconds": 3 ,
+    "alert_cooloff_duration_seconds": 15 ,
     "alert_server_post_url": "http://localhost:9379/process"
 }

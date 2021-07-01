@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"strings"
 	"image"
-	"io/ioutil"
+	// "io/ioutil"
 	"encoding/json"
 	"encoding/base64"
 	//"image/color"
@@ -64,9 +64,9 @@ func ( tracker *Tracker ) Alert( frame_buffer []uint8 ) {
 		if request_error != nil { fmt.Println( request_error ); }
 		response , _ := client.Do( request )
 		defer response.Body.Close()
-		body , body_error := ioutil.ReadAll( response.Body )
-		if body_error != nil { fmt.Println( body_error ); }
-		fmt.Println( body )
+		// body , body_error := ioutil.ReadAll( response.Body )
+		// if body_error != nil { fmt.Println( body_error ); }
+		// fmt.Println( body )
 	}).Catch( func ( e try.E ) {
 		fmt.Println( e )
 	})
@@ -193,7 +193,7 @@ func ( tracker *Tracker ) Start() {
 
 		// Calculate State Decisions Based on Current Value of motion_counter
 		if motion_counter >= tracker.Config.MinimumMotionCounterBeforeEvent { events_counter += 1; motion_counter = 0 }
-		if events_counter >= tracker.Config.MinimumEventsBeforeAlert { tracker.Alert( frame_buffer ); events_counter = 0; motion_counter = 0 }
+		if events_counter >= tracker.Config.MinimumEventsBeforeAlert { go tracker.Alert( frame_buffer ); events_counter = 0; motion_counter = 0 }
 
 	}
 
