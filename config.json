@@ -9,5 +9,11 @@
     "minimum_motion_counter_before_event": 3 ,
     "minimum_events_before_alert": 3 ,
     "alert_cooloff_duration_seconds": 15 ,
-    "alert_server_post_url": "http://localhost:9379/process"
+    "alert_server_post_url": "http://localhost:9379/process" ,
+    "frame_clipping": {
+        "x1": 0 ,
+        "x2": 640 ,
+        "y1": 0 ,
+        "y2": 480
+    }
 }

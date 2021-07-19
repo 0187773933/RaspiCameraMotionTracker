@@ -21,7 +21,14 @@ func ParseConfig() ( config motion.TrackerConfig ) {
 		minimum_events_before_alert , _ := strconv.Atoi( os.Getenv( "RPMT_MINIMUM_EVENTS_BEFORE_ALERT" ) )
 		alert_cooloff_duration_seconds , _ := strconv.ParseFloat( os.Getenv( "RPMT_ALERT_COOLOFF_DURATION_SECONDS" ) , 64 )
 		alert_server_post_url := os.Getenv( "RPMT_ALERT_SERVER_POST_URL" )
-
+		frame_clipping_x1 , _ := strconv.Atoi( os.Getenv( "RPMT_FRAME_CLIPPING_X1" ) )
+		frame_clipping_y1 , _ := strconv.Atoi( os.Getenv( "RPMT_FRAME_CLIPPING_Y1" ) )
+		frame_clipping_x2 , _ := strconv.Atoi( os.Getenv( "RPMT_FRAME_CLIPPING_X2" ) )
+		frame_clipping_y2 , _ := strconv.Atoi( os.Getenv( "RPMT_FRAME_CLIPPING_Y2" ) )
+		config.FrameClipping.X1 = frame_clipping_x1
+		config.FrameClipping.Y1 = frame_clipping_y1
+		config.FrameClipping.X2 = frame_clipping_x2
+		config.FrameClipping.Y2 = frame_clipping_y2
 		config.ServerPort  = server_port
 		config.ServerMJPEGEndpointURL = server_mjpeg_endpoint_url
 		config.DeviceID = device_id
