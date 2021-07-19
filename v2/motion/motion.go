@@ -91,6 +91,15 @@ func GetFormattedTimeString( time_object time.Time ) ( result string ) {
 	return
 }
 
+// https://github.com/hybridgroup/gocv/issues/639
+// https://github.com/hybridgroup/gocv/issues/535
+
+// func (icv *ImageCV) Crop(left, top, right, bottom int) *ImageCV {
+// 	croppedMat := icv.mat.Region(image.Rect(left, top, right, bottom))
+//         resultMat := croppedMat.Clone()
+// 	return &ImageCV{mat: resultMat}
+// }
+
 func ( tracker *Tracker ) Start() {
 	fmt.Println( "Starting Motion Tracker" )
 
