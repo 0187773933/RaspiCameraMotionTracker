@@ -18,6 +18,7 @@ RUN apt-get install unzip -y
 RUN apt-get install net-tools -y
 RUN apt-get install iproute2 -y
 RUN apt-get install iputils-ping -y
+RUN apt-get install tzdata -y
 # Programming Languages , Python Comes Pre-Packaged Now
 # RUN apt-get install golang-go -y
 # Apparently, gocv.io requires go 1.11.6
@@ -83,6 +84,8 @@ RUN apt-get install openexr -y
 RUN apt-get install libopenexr-dev -y
 
 ENV TZ="US/Eastern"
+RUN echo "US/Eastern" > /etc/timezone
+RUN dpkg-reconfigure -f noninteractive tzdata
 ARG USERNAME="morphs"
 ARG PASSWORD="asdfasdf"
 RUN useradd -m $USERNAME -p $PASSWORD -s "/bin/bash"
