@@ -41,6 +41,7 @@ type TrackerConfig struct {
 	AlertCooloffDurationSeconds float64 `json:"alert_cooloff_duration_seconds"`
 	AlertServerPostURL string `json:"alert_server_post_url"`
 	FrameClipping FrameClipping `json:"frame_clipping"`
+	TimeZone string `json:"time_zone"`
 }
 type Tracker struct {
 	Stream *mjpeg.Stream `json:"mjpeg_stream"`
@@ -57,7 +58,8 @@ func NewTracker( stream *mjpeg.Stream , config *TrackerConfig ) ( *Tracker ) {
 }
 
 func ( tracker *Tracker ) Alert( frame_buffer []uint8 ) {
-	tracker.LastAlertTime = time.Now()
+	location , _ := time.LoadLocation( tracker.Config.TimeZone )
+	tracker.LastAlertTime = time.Now().In( location )
 	fmt.Println( "sending sms alert" )
 	try.This( func() {
 		frame_buffer_b64_string := base64.StdEncoding.EncodeToString( frame_buffer )
@@ -123,7 +125,6 @@ func ( tracker *Tracker ) Start() {
 		fmt.Printf( "probably don't have read access to /dev/video%v" , tracker.Config.DeviceID );
 	})
 	// webcam , webcam_error := opencv.OpenVideoCapture( tracker.Config.DeviceID )
-	fmt.Println( "?? 2" )
 	if webcam_error != nil { panic( webcam_error ) }
 	defer webcam.Close()
 
