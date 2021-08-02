@@ -19,18 +19,13 @@ RUN apt-get install net-tools -y
 RUN apt-get install iproute2 -y
 RUN apt-get install iputils-ping -y
 RUN apt-get install tzdata -y
+RUN apt-get install bc -y
 # Programming Languages , Python Comes Pre-Packaged Now
 # RUN apt-get install golang-go -y
 # Apparently, gocv.io requires go 1.11.6
 # and 11JUN2021 , apt-get installs
 # we installed a specific version of go somewhere in a docker
 # https://golang.org/dl/
-COPY ./go_install.sh /home/$USERNAME/go_install.sh
-RUN sudo chmod +x /home/$USERNAME/go_install.sh
-RUN sudo chown $USERNAME:$USERNAME /home/$USERNAME/go_install.sh
-RUN /home/$USERNAME/go_install.sh
-# base64Encode 'export GO_TAR_KILOBYTES=$(printf "%.3f\n" $(echo "$(stat --format="%s" /home/morphs/go.tar.gz) / 1000" | bc -l)) && echo Extracting [$TAR_CHECKPOINT] of $GO_TAR_KILOBYTES kilobytes /usr/local/go'
-RUN sudo tar --checkpoint=100 --checkpoint-action=exec='/bin/bash -c "cmd=$(echo ZXhwb3J0IEdPX1RBUl9LSUxPQllURVM9JChwcmludGYgIiUuM2ZcbiIgJChlY2hvICIkKHN0YXQgLS1mb3JtYXQ9IiVzIiAvaG9tZS9tb3JwaHMvZ28udGFyLmd6KSAvIDEwMDAiIHwgYmMgLWwpKSAmJiBlY2hvIEV4dHJhY3RpbmcgWyRUQVJfQ0hFQ0tQT0lOVF0gb2YgJEdPX1RBUl9LSUxPQllURVMga2lsb2J5dGVzIC91c3IvbG9jYWwvZ28= | base64 -d ; echo); eval $cmd"' -C /usr/local -xzf /home/$USERNAME/go.tar.gz
 
 RUN apt-get install python-pip -y
 RUN apt-get install python3-pip -y
@@ -99,12 +94,12 @@ WORKDIR /home/$USERNAME
 RUN mkdir -p /home/$USERNAME/SHARING
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/SHARING
 
-RUN mkdir -p /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
-COPY ./v2 /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
-COPY ./go.mod /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
-COPY ./go.sum /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
-COPY ./config.json /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
-RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/SHARING/RaspiCameraMotionTracker
+# RUN mkdir -p /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
+# COPY ./v2 /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
+# COPY ./go.mod /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
+# COPY ./go.sum /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
+# COPY ./config.json /home/$USERNAME/SHARING/RaspiCameraMotionTracker/
+# RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/SHARING/RaspiCameraMotionTracker
 
 # Build OpenCV for GoVersion
 RUN mkdir -p /home/$USERNAME/SHARING/opencv/
@@ -161,6 +156,21 @@ WORKDIR /home/$USERNAME
 # # RUN rm /${OPENCV_VERSION}.zip
 # # RUN rm -r /opencv-${OPENCV_VERSION}
 
+COPY ./go_install.sh /home/$USERNAME/go_install.sh
+RUN sudo chmod +x /home/$USERNAME/go_install.sh
+RUN sudo chown $USERNAME:$USERNAME /home/$USERNAME/go_install.sh
+RUN /home/$USERNAME/go_install.sh
+# base64Encode 'export GO_TAR_KILOBYTES=$(printf "%.3f\n" $(echo "$(stat --format="%s" /home/morphs/go.tar.gz) / 1000" | bc -l)) && echo Extracting [$TAR_CHECKPOINT] of $GO_TAR_KILOBYTES kilobytes /usr/local/go'
+RUN sudo tar --checkpoint=100 --checkpoint-action=exec='/bin/bash -c "cmd=$(echo ZXhwb3J0IEdPX1RBUl9LSUxPQllURVM9JChwcmludGYgIiUuM2ZcbiIgJChlY2hvICIkKHN0YXQgLS1mb3JtYXQ9IiVzIiAvaG9tZS9tb3JwaHMvZ28udGFyLmd6KSAvIDEwMDAiIHwgYmMgLWwpKSAmJiBlY2hvIEV4dHJhY3RpbmcgWyRUQVJfQ0hFQ0tQT0lOVF0gb2YgJEdPX1RBUl9LSUxPQllURVMga2lsb2J5dGVzIC91c3IvbG9jYWwvZ28= | base64 -d ; echo); eval $cmd"' -C /usr/local -xzf /home/$USERNAME/go.tar.gz
+
+RUN mkdir -p /home/$USERNAME/MOTION_TRACKER
+RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/MOTION_TRACKER
+COPY . /home/$USERNAME/MOTION_TRACKER
+RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/MOTION_TRACKER
+WORKDIR /home/$USERNAME/MOTION_TRACKER
+RUN GOOS=linux GOARCH=arm go build -o motion_tracker
+RUN chmod +x motion_tracker
+
 # ENV DISPLAY=:10.0
-ENTRYPOINT [ "/bin/bash" ]
-# # ENTRYPOINT [ "/usr/bin/python3" , "/home/$USERNAME/main.py" ]
+# ENTRYPOINT [ "/bin/bash" ]
+ENTRYPOINT [ "/home/morphs/MOTION_TRACKER/motion_tracker" ]

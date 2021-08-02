@@ -25,6 +25,8 @@ const headerf = "\r\n" +
 "\r\n"
 
 // ServeHTTP responds to HTTP requests with the MJPEG stream, implementing the http.Handler interface.
+// as long as we impliment ServeHTTP we are fine??? this isn't class shit.
+// https://pkg.go.dev/net/http#Handle
 func ( s *Stream ) ServeHTTP( w http.ResponseWriter , r *http.Request ) {
 	log.Println( "Stream:" , r.RemoteAddr , "connected" )
 	w.Header().Add( "Content-Type" , "multipart/x-mixed-replace;boundary=" + boundaryWord )

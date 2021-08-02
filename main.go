@@ -85,6 +85,8 @@ func main() {
 	//http.HandleFunc( "/frame.jpeg" , handle  )
 	// log.Fatal( http.ListenAndServe( "0.0.0.0:9767" , nil ) )
 
+	// somehow it never calls ServeHTTP() ??? http.Handle implicitly calls it ???
+	// https://tutorialedge.net/golang/authenticating-golang-rest-api-with-jwts/
 	http.Handle( config.ServerMJPEGEndpointURL , stream )
 	http.ListenAndServe( fmt.Sprintf( "0.0.0.0:%s" , config.ServerPort ) , nil )
 }
