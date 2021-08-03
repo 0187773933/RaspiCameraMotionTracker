@@ -112,25 +112,26 @@ RUN mkdir -p /home/$USERNAME/SHARING/opencv/opencv-$OPENCV_VERSION/cmake_binary
 WORKDIR /home/$USERNAME/SHARING/opencv/opencv-$OPENCV_VERSION/cmake_binary
 RUN cmake \
 -D OPENCV_GENERATE_PKGCONFIG=ON \
--D PYTHON_EXECUTABLE=$(which python3) \
 -D WITH_CUDA=OFF \
+-D BUILD_opencv_python=OFF \
+-D BUILD_opencv_python2=OFF \
+-D BUILD_opencv_python3=OFF \
 -D CMAKE_BUILD_TYPE=RELEASE \
--D BUILD_PYTHON_SUPPORT=ON \
+-D BUILD_SHARED_LIBS=ON \
 -D CMAKE_INSTALL_PREFIX=/usr \
--D INSTALL_C_EXAMPLES=ON \
--D INSTALL_PYTHON_EXAMPLES=ON \
--D BUILD_PYTHON_SUPPORT=ON \
--D BUILD_NEW_PYTHON_SUPPORT=ON \
--D PYTHON_DEFAULT_EXECUTABLE=$(which python3) \
+-D INSTALL_C_EXAMPLES=OFF \
+-D INSTALL_PYTHON_EXAMPLES=OFF \
+-D BUILD_PYTHON_SUPPORT=OFF \
+-D BUILD_NEW_PYTHON_SUPPORT=OFF \
 -D WITH_TBB=ON \
 -D WITH_PTHREADS_PF=ON \
 -D WITH_OPENNI=OFF \
 -D WITH_OPENNI2=ON \
 -D WITH_EIGEN=ON \
--D BUILD_DOCS=ON \
--D BUILD_TESTS=ON \
--D BUILD_PERF_TESTS=ON \
--D BUILD_EXAMPLES=ON \
+-D BUILD_DOCS=OFF \
+-D BUILD_TESTS=OFF \
+-D BUILD_PERF_TESTS=OFF \
+-D BUILD_EXAMPLES=OFF \
 -D WITH_OPENCL=$OPENCL_ENABLED \
 -D USE_GStreamer=ON \
 -D WITH_GDAL=ON \
@@ -146,10 +147,11 @@ RUN cmake \
 -D WITH_V4L=ON ..
 # -D WITH_NGRAPH=ON \
 # RUN make
-RUN n=$(nproc) && ((c=$n-1)) && make -j $c
+#RUN n=$(nproc) && ((c=$n-2)) && make -j $c
+RUN make
 RUN sudo make install
 RUN sudo ldconfig
-RUN sudo chown $USERNAME:video /dev/video0
+RUN sudo chown $USERNAME:video /dev/video0 || echo ""
 
 WORKDIR /home/$USERNAME
 
@@ -162,15 +164,35 @@ RUN sudo chown $USERNAME:$USERNAME /home/$USERNAME/go_install.sh
 RUN /home/$USERNAME/go_install.sh
 # base64Encode 'export GO_TAR_KILOBYTES=$(printf "%.3f\n" $(echo "$(stat --format="%s" /home/morphs/go.tar.gz) / 1000" | bc -l)) && echo Extracting [$TAR_CHECKPOINT] of $GO_TAR_KILOBYTES kilobytes /usr/local/go'
 RUN sudo tar --checkpoint=100 --checkpoint-action=exec='/bin/bash -c "cmd=$(echo ZXhwb3J0IEdPX1RBUl9LSUxPQllURVM9JChwcmludGYgIiUuM2ZcbiIgJChlY2hvICIkKHN0YXQgLS1mb3JtYXQ9IiVzIiAvaG9tZS9tb3JwaHMvZ28udGFyLmd6KSAvIDEwMDAiIHwgYmMgLWwpKSAmJiBlY2hvIEV4dHJhY3RpbmcgWyRUQVJfQ0hFQ0tQT0lOVF0gb2YgJEdPX1RBUl9LSUxPQllURVMga2lsb2J5dGVzIC91c3IvbG9jYWwvZ28= | base64 -d ; echo); eval $cmd"' -C /usr/local -xzf /home/$USERNAME/go.tar.gz
+RUN sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
 
 RUN mkdir -p /home/$USERNAME/MOTION_TRACKER
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/MOTION_TRACKER
 COPY . /home/$USERNAME/MOTION_TRACKER
 RUN sudo chown -R $USERNAME:$USERNAME /home/$USERNAME/MOTION_TRACKER
 WORKDIR /home/$USERNAME/MOTION_TRACKER
-RUN GOOS=linux GOARCH=arm go build -o motion_tracker
-RUN chmod +x motion_tracker
+RUN go mod download
+
+COPY ./core.go /home/morphs/go/pkg/mod/gocv.io/x/gocv@v0.25.0/core.go
+RUN sudo chmod +r /home/morphs/go/pkg/mod/gocv.io/x/gocv@v0.25.0/core.go
+RUN sudo rm ./core.go
+
+# RUN go get -u gocv.io/x/gocv
+# go get -u gocv.io/x/gocv@v0.27.0
+# RUN chmod +w /home/morphs/go/pkg/mod/gocv.io/x/gocv@v0.25.0/core.go
+# RUN python3 -c "exec(__import__('base64').b64decode('JycnCmZpbGVfcGF0aCA9ICIvaG9tZS9tb3JwaHMvZ28vcGtnL21vZC9nb2N2LmlvL3gvZ29jdkB2MC4yNS4wL2NvcmUuZ28iCmZpbGVfZGF0YSA9IE5vbmUKd2l0aCBvcGVuKCBmaWxlX3BhdGggLCAiciIgKSBhcyBmaWxlOgoJZmlsZV9kYXRhID0gZmlsZS5yZWFkKCkKCWZpbGVfZGF0YSA9IGZpbGVfZGF0YS5yZXBsYWNlKCAiMSA8PCAzMCIgLCAiMSA8PCAyMCIgKQp3aXRoIG9wZW4oIGZpbGVfcGF0aCAsICJ3IiApIGFzIGZpbGU6CglmaWxlLndyaXRlKCBmaWxlX2RhdGEgKQonJyc=').decode('utf-8'))"
+# RUN chmod -w /home/morphs/go/pkg/mod/gocv.io/x/gocv@v0.25.0/core.go
+
+RUN go build -o motion-tracker-server
+RUN chmod +x motion-tracker-server
+
+# COPY /dev/video0 /dev/video0
+RUN sudo mknod /dev/video0 c 81 0 || echo ""
+RUN sudo chmod 666 /dev/video0 || echo ""
+RUN sudo chgrp video /dev/video0 || echo ""
+RUN sudo chown $USERNAME:video /dev/video0 || echo ""
 
 # ENV DISPLAY=:10.0
 # ENTRYPOINT [ "/bin/bash" ]
-ENTRYPOINT [ "/home/morphs/MOTION_TRACKER/motion_tracker" ]
+# ENTRYPOINT [ "/home/morphs/MOTION_TRACKER/motion-tracker-server" ]
+ENTRYPOINT [ "/home/morphs/MOTION_TRACKER/entrypoint.sh" ]
