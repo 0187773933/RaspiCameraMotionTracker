@@ -45,6 +45,8 @@ type TrackerConfig struct {
 	JWTSecret string `json:"jwt_secret"`
 	CookieSecret string `json:"cookie_32_secret"`
 	CookieSalt string `json:"cookie_32_salt"`
+	LoginFormPassphrase string `json:"login_form_passphrase"`
+	LoginSHA256Sum string `json:"login_sha256_sum"`
 }
 type Tracker struct {
 	Stream *mjpeg.Stream `json:"mjpeg_stream"`

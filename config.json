@@ -19,5 +19,7 @@
     "time_zone": "America/New_York" ,
     "jwt_secret": "waduwaduwaduwaduwadu" ,
     "cookie_32_secret": "YUxjYltbRkl4SVdQa1lZa2NLIzJNfnN9WmdBOFRGRSM=" ,
-    "cookie_32_salt": "QC4vYndpbW8vczdBO0J1d2wiS1ZLeHRUPiMpTmYvfi0="
+    "cookie_32_salt": "QC4vYndpbW8vczdBO0J1d2wiS1ZLeHRUPiMpTmYvfi0=" ,
+    "login_form_passphrase": "waduwaduwaduwaduwadu" ,
+    "login_sha256_sum": "8dc2290137eb94dd0cb51befa8ee086b188239ecb4908cf23a89144d9fe7e7e6"
 }

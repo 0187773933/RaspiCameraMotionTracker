@@ -8,8 +8,9 @@ import (
 	// "reflect"
 	"net/http"
 	"encoding/base64"
-	"crypto/aes"
-	"encoding/hex"
+	// "crypto/aes"
+	// "crypto/sha256"
+	// "encoding/hex"
 	// json "encoding/json"
 	_ "net/http/pprof"
 	bcrypt "golang.org/x/crypto/bcrypt"
@@ -32,6 +33,7 @@ var JWT_SECRET = []byte("asdf")
 var COOKIE_SECRET = []byte("asdf")
 var COOKIE_SALT = []byte("asdf")
 var COOKIE *securecookie.SecureCookie
+var PASSWORD_SHA256_SUM = ""
 
 // func Secret( user , realm string ) string {
 // 	if user == "john" {
@@ -121,23 +123,56 @@ type LoginResult struct {
 	Token string `json:"token"`
 }
 // func login( w http.ResponseWriter , r *auth.AuthenticatedRequest ) {
-const LoginForm = `
-<form method="POST" action="/login">
-Username : <input type="text" name="username">
-<br>
-Password : <input type="text" name="password">
-<br>
-<input type="submit" value="Login">
-</form>
-`
-func DecryptAES(key []byte, ct string) {
-	ciphertext, _ := hex.DecodeString(ct)
-	c, _ := aes.NewCipher(key)
-	pt := make([]byte, len(ciphertext))
-	c.Decrypt(pt, ciphertext)
+func gen_login_form( passphrase string ) ( login_form string ) {
+	login_form = fmt.Sprintf(`
+<html>
+	<head>
+		<!-- https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js -->
+		<!-- https://codepen.io/gabrielizalo/pen/oLzaqx -->
+		<!-- <script src="https://39363.org/CDN/aes.js"></script> -->
+		<script src="https://39363.org/CDN/sha256.js"></script>
+	</head>
+	<body>
+		<form id="login_form" method="POST" action="/login" , onsubmit="post_login_form()" >
+			<input type="hidden" name="sha256sum">
+			Username : <input type="text" name="username">
+			<br>
+			Password : <input type="text" name="password">
+			<br>
+			<input type="submit" value="Login">
+		</form>
+		<script>
+		function post_login_form() {
+			let form = document.getElementById( "login_form" );
+			form.sha256sum.value = CryptoJS.SHA256( form.username.value + " === " + form.password.value ).toString();
+			form.username.value = "";
+			form.password.value = "";
+			return true;
+		}
+		</script>
+	</body>
+</html>
+`)
+	return
+}
+var LoginForm = ""
+// func DecryptAES(key []byte, ct string) {
+// 	ciphertext, _ := hex.DecodeString(ct)
+// 	c, _ := aes.NewCipher(key)
+// 	pt := make([]byte, len(ciphertext))
+// 	c.Decrypt(pt, ciphertext)
 
-	s := string(pt[:])
-	fmt.Println("DECRYPTED:", s)
+// 	s := string(pt[:])
+// 	fmt.Println("DECRYPTED:", s)
+// }
+func password_sums_match( test_sha256_sum string ) ( result bool ) {
+	result = false
+	// username_password_sha256_bytes := sha256.Sum256( []byte( "wadu === wadu" ) )
+	// username_password_sha256 :=  hex.EncodeToString( username_password_sha256_bytes[:] )
+	if test_sha256_sum == PASSWORD_SHA256_SUM {
+		result = true
+	}
+	return
 }
 func login( w http.ResponseWriter , r *http.Request ) {
 	switch r.Method {
@@ -146,6 +181,13 @@ func login( w http.ResponseWriter , r *http.Request ) {
 			fmt.Fprint( w , LoginForm )
 			return
 		case "POST":
+			r.ParseForm()
+			test_sha256_sum := r.Form.Get("sha256sum")
+			if password_sums_match( test_sha256_sum ) == false {
+				w.Header().Set( "Content-Type" , "text/html; charset=utf-8" )
+				fmt.Fprint( w , LoginForm )
+				return
+			}
 			validToken , err := GenerateJWT()
 			if err != nil { fmt.Println("Failed to generate token") }
 			value := map[string]string{
@@ -192,6 +234,8 @@ func main() {
 	COOKIE_SECRET , _ = base64.StdEncoding.DecodeString( config.CookieSecret )
 	COOKIE_SALT , _ = base64.StdEncoding.DecodeString( config.CookieSalt )
 	COOKIE = securecookie.New( COOKIE_SECRET , COOKIE_SALT )
+	LoginForm = gen_login_form( config.LoginFormPassphrase )
+	PASSWORD_SHA256_SUM = config.LoginSHA256Sum
 	stream = mjpeg.NewStream( config.FrameIntervalMilliseconds , COOKIE , JWT_SECRET )
 
 	motion_tracker := motion.NewTracker( stream , &config )
