@@ -2,7 +2,7 @@
     "server_port": "9767" ,
     "server_mjpeg_endpoint_url": "/frame.jpeg" ,
     "device_id": 0 ,
-    "frame_interval_milliseconds": 29 ,
+    "frame_interval_milliseconds": 15 ,
     "delta_threshold": 5 ,
     "show_display": false ,
     "minimum_area": 1000 ,
@@ -23,3 +23,4 @@
     "login_form_passphrase": "waduwaduwaduwaduwadu" ,
     "login_sha256_sum": "8dc2290137eb94dd0cb51befa8ee086b188239ecb4908cf23a89144d9fe7e7e6"
 }
+

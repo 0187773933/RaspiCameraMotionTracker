@@ -1,0 +1,10 @@
+example.com {
+	reverse_proxy localhost:6767
+	handle_path /* {
+		reverse_proxy localhost:6767
+	}
+
+}
+sleep.example.com {
+    reverse_proxy localhost:3000
+}
