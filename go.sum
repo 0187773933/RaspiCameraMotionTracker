@@ -1,5 +1,11 @@
 github.com/abbot/go-http-auth v0.4.0 h1:QjmvZ5gSC7jm3Zg54DqWE/T5m1t2AfDu6QlXJT0EVT0=
 github.com/abbot/go-http-auth v0.4.0/go.mod h1:Cz6ARTIzApMJDzh5bRMSUou6UMSp0IEXg9km/ci7TJM=
+github.com/chmike/securecookie v1.3.2 h1:YZQJiNKxfj95lihcCFJkD3hPh6YyGIFSYMFAT9sNOpc=
+github.com/chmike/securecookie v1.3.2/go.mod h1:1bLNLnTye4T9JT4PVtmbq0ITdeTXZ9qy+w/VSPtG8So=
+github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
+github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
+github.com/gorilla/securecookie v1.1.1 h1:miw7JPhV+b/lAHSXz4qd/nN9jRiAFV5FwjeKyCS8BvQ=
+github.com/gorilla/securecookie v1.1.1/go.mod h1:ra0sb63/xPlUeL+yeDciTfxMRAA+MP+HVt/4epWDjd4=
 github.com/manucorporat/try v0.0.0-20170609134256-2a0c6b941d52 h1:oDTPtoe4cjcJZyFBdQeM9fIYr3r9OChbE52ZlPBm0R0=
 github.com/manucorporat/try v0.0.0-20170609134256-2a0c6b941d52/go.mod h1:PYmsnmY2H7ohIZ3KsT7XGM7C5cmr+yKJ9MBBQd5p6AU=
 gocv.io/x/gocv v0.25.0 h1:vM50jL3v9OEqWSi+urelX5M1ptZeFWA/VhGPvdTqsJU=

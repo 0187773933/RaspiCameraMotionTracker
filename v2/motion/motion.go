@@ -42,6 +42,9 @@ type TrackerConfig struct {
 	AlertServerPostURL string `json:"alert_server_post_url"`
 	FrameClipping FrameClipping `json:"frame_clipping"`
 	TimeZone string `json:"time_zone"`
+	JWTSecret string `json:"jwt_secret"`
+	CookieSecret string `json:"cookie_32_secret"`
+	CookieSalt string `json:"cookie_32_salt"`
 }
 type Tracker struct {
 	Stream *mjpeg.Stream `json:"mjpeg_stream"`
