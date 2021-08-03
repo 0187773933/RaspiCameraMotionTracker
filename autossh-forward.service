@@ -1,0 +1,18 @@
+[Unit]
+Description=Keeps a tunnel to 'RelayMain' open
+After=network.target
+[Service]
+Environment="AUTOSSH_PIDFILE=/var/run/autossh.pid"
+Environment="AUTOSSH_POLL=60"
+Environment="AUTOSSH_FIRST_POLL=30"
+Environment="AUTOSSH_GATETIME=0"
+Environment="AUTOSSH_DEBUG=1"
+ExecStart=/usr/bin/autossh -N -M 32301 -R 32300:localhost:22 -R 9767:localhost:9767 \
+-o ServerAliveInterval=60 -o ServerAliveCountMax=3 \
+-o IdentitiesOnly=yes  -o StrictHostKeyChecking=no \
+-o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -F /dev/null \
+raspitest@1.2.3.4 -i /home/morphs/.ssh/raspitestprivatekey
+ExecStop=/usr/bin/pkill autossh
+Restart=always
+[Install]
+WantedBy=multi-user.target
