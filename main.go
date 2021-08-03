@@ -8,6 +8,8 @@ import (
 	// "reflect"
 	"net/http"
 	"encoding/base64"
+	"crypto/aes"
+	"encoding/hex"
 	// json "encoding/json"
 	_ "net/http/pprof"
 	bcrypt "golang.org/x/crypto/bcrypt"
@@ -119,47 +121,53 @@ type LoginResult struct {
 	Token string `json:"token"`
 }
 // func login( w http.ResponseWriter , r *auth.AuthenticatedRequest ) {
+const LoginForm = `
+<form method="POST" action="/login">
+Username : <input type="text" name="username">
+<br>
+Password : <input type="text" name="password">
+<br>
+<input type="submit" value="Login">
+</form>
+`
+func DecryptAES(key []byte, ct string) {
+	ciphertext, _ := hex.DecodeString(ct)
+	c, _ := aes.NewCipher(key)
+	pt := make([]byte, len(ciphertext))
+	c.Decrypt(pt, ciphertext)
+
+	s := string(pt[:])
+	fmt.Println("DECRYPTED:", s)
+}
 func login( w http.ResponseWriter , r *http.Request ) {
-	validToken , err := GenerateJWT()
-	if err != nil { fmt.Println("Failed to generate token") }
-	// w.Header().Set( "Content-Type" , "application/json" )
-	// data := LoginResult{}
-	// data.Token = validToken
-	// w.WriteHeader( http.StatusCreated )
-	// logincookie , _ := securecookie.New( "olahmb" , COOKIE_SECRET , securecookie.Params{
-	// 	Path:     "/frame.jpeg" ,           // cookie received only when URL starts with this path
-	// 	Domain:   "localhost" ,    // cookie received only when URL domain matches this one
-	// 	MaxAge:   3600 ,             // cookie becomes invalid 3600 seconds after it is set
-	// 	HTTPOnly: true ,             // disallow access by remote javascript code
-	// 	Secure:   false ,             // cookie received only with HTTPS, never with HTTP
-	// 	SameSite: securecookie.Lax , // cookie received with same or sub-domain names
-	// })
-	// fmt.Println( logincookie )
-	// logincookie.SetValue( w , []byte( validToken ) )
-	value := map[string]string{
-		"token": validToken ,
+	switch r.Method {
+		case "GET":
+			w.Header().Set( "Content-Type" , "text/html; charset=utf-8" )
+			fmt.Fprint( w , LoginForm )
+			return
+		case "POST":
+			validToken , err := GenerateJWT()
+			if err != nil { fmt.Println("Failed to generate token") }
+			value := map[string]string{
+				"token": validToken ,
+			}
+			encoded , _ := COOKIE.Encode( "rpmt-cookie" , value );
+			cookie := &http.Cookie{
+				Name:  "rpmt-cookie",
+				Value: encoded ,
+				Path:  "/frame.jpeg" ,
+				// Path:  "/test" ,
+				Secure: false ,
+				HttpOnly: false ,
+			}
+			fmt.Println( cookie )
+			http.SetCookie( w , cookie )
+			http.Redirect( w , r , "/frame.jpeg" , http.StatusTemporaryRedirect )
+			return
+		default:
+			fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
+			return
 	}
-	encoded , _ := COOKIE.Encode( "rpmt-cookie" , value );
-	cookie := &http.Cookie{
-		Name:  "rpmt-cookie",
-		Value: encoded ,
-		Path:  "/frame.jpeg" ,
-		// Path:  "/test" ,
-		Secure: false ,
-		HttpOnly: false ,
-	}
-	fmt.Println( cookie )
-	http.SetCookie( w , cookie )
-
-	http.Redirect( w , r , "/frame.jpeg" , http.StatusTemporaryRedirect )
-	// http.Redirect( w , r , "/test" , http.StatusTemporaryRedirect )
-	// http.Redirect( w ,r , "/test" , http.StatusOK )
-	// http.Redirect( w ,r , "/login" , http.StatusUnauthorized )
-
-	// json.NewEncoder( w ).Encode( data )
-	// jsonResp , _ := json.Marshal( data )
-	// w.Write( jsonResp )
-	return
 }
 
 type TestAuthResult struct {

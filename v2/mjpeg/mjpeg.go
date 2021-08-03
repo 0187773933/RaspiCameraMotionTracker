@@ -95,7 +95,8 @@ func ( s *Stream ) ServeHTTP( w http.ResponseWriter , r *http.Request ) {
 			}
 		}
 	}
-	http.Redirect( w , r , "/" , http.StatusUnauthorized )
+	fmt.Println( "here ???" )
+	http.Redirect( w , r , "/login" , http.StatusTemporaryRedirect )
 	return
 }
 
